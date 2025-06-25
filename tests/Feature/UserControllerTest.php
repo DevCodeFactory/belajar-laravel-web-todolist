@@ -8,15 +8,33 @@ use Tests\TestCase;
 
 class UserControllerTest extends TestCase
 {
-    /**
-     * A basic feature test example.
-     *
-     * @return void
-     */
-    public function test_example()
+    public function testLoginPage()
     {
-        $response = $this->get('/');
+        $this->get('/login')
+            ->assertStatus(200)
+            ->assertSeeText('Login');
+    }
 
-        $response->assertStatus(200);
+    public function testLoginSuccess()
+    {
+        $this->post('/login', [
+            'user' => 'azdyf',
+            'password' => 'rahasia',
+        ])->assertRedirect('/')
+            ->assertSessionHas('user', 'azdyf');
+    }
+
+    public function testLoginValidationError()
+    {
+        $this->post('/login', [])
+            ->assertSeeText('User or Password is required');
+    }
+
+    public function testLoginFailed()
+    {
+        $this->post('/login', [
+            'user' => 'wrong',
+            'password' => 'wrong',
+        ])->assertSeeText('User or Password is incorrect');
     }
 }
